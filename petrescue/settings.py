@@ -132,10 +132,13 @@ ACCOUNT_SIGNUP_REDIRECT_URL = "/accounts/login/"
 
 
 
+
+
 SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
+    'google': {
+        'AUTH_PARAMS': {
+            'prompt': 'select_account'
+        }
     }
 }
 
