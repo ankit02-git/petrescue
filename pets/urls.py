@@ -11,5 +11,9 @@ urlpatterns = [
     path('add-request/', views.add_request, name='add_request'),
     path('my-requests/', views.my_requests, name='my_requests'),
     path('all-pets/', views.all_pets, name='all_pets'),
+    path('favorites/', views.favorites, name='favorites'),
+    path('pet/<int:pk>/', views.pet_detail, name='pet_detail'),
+    path('favorite/add/<int:pk>/', views.add_to_favorites, name='add_to_favorites'),
+    
 ]
 

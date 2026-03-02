@@ -9,6 +9,7 @@ urlpatterns = [
     path('', include('pets.urls')),   # include all app URLs here
     path('accounts/', include('allauth.urls')),
     
+    
 ]
 
 if settings.DEBUG:

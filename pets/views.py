@@ -4,6 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from .models import Pet
+from .models import Pet, Favorite
+from django.shortcuts import get_object_or_404
+import requests
 
 User = get_user_model()
 
@@ -86,27 +89,123 @@ def add_request(request):
         pet_type = request.POST.get('pet_type')
         breed = request.POST.get('breed')
         color = request.POST.get('color')
-        location = request.POST.get('location')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
         contact_info = request.POST.get('contact_info')
         description = request.POST.get('description')
+        incident_datetime = request.POST.get('incident_datetime')
         image = request.FILES.get('image')
+
+        # Basic validation
+        if not latitude or not longitude:
+            messages.error(request, "Please select location on the map.")
+            return redirect('add_request')
 
         Pet.objects.create(
             user=request.user,
             pet_type=pet_type,
             breed=breed,
             color=color,
-            location=location,
-            latitude=latitude,
-            longitude=longitude,
+            latitude=float(latitude),
+            longitude=float(longitude),
             contact_info=contact_info,
             description=description,
-            image=image
+            incident_datetime=incident_datetime,
+            image=image,
+        )
+
+        messages.success(request, "Pet request submitted successfully!")
+        return redirect('my_requests')
+
+    return render(request, 'add_request.html')
+
+
+
+
+@login_required
+def pet_detail(request, pk):
+    pet = get_object_or_404(Pet, id=pk)
+    return render(request, 'pet_detail.html', {'pet': pet})
+
+
+@login_required
+def add_to_favorites(request, pk):
+    pet = get_object_or_404(Pet, id=pk)
+    Favorite.objects.get_or_create(user=request.user, pet=pet)
+    return redirect('favorites')
+
+
+@login_required
+def favorites(request):
+    favorites = Favorite.objects.filter(user=request.user)
+    return render(request, 'favorites.html', {'favorites': favorites})
+
+import requests
+
+@login_required
+def add_request(request):
+    if request.method == "POST":
+        pet_type = request.POST.get('pet_type')
+        breed = request.POST.get('breed')
+        color = request.POST.get('color')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        contact_info = request.POST.get('contact_info')
+        description = request.POST.get('description')
+        incident_datetime = request.POST.get('incident_datetime')
+        image = request.FILES.get('image')
+
+        location_name = "Unknown Location"
+
+        if latitude and longitude:
+            try:
+                url = "https://nominatim.openstreetmap.org/reverse"
+
+                params = {
+                    "lat": latitude,
+                    "lon": longitude,
+                    "format": "json"
+                }
+
+                # ✅ ADD IT HERE
+                headers = {
+                    "User-Agent": "petrescue-app"
+                }
+
+                # ✅ Pass headers here
+                response = requests.get(url, params=params, headers=headers)
+
+                data = response.json()
+
+                address = data.get("address", {})
+
+                city = address.get("city") or \
+                       address.get("town") or \
+                       address.get("village") or \
+                       address.get("county")
+
+                state = address.get("state")
+                country = address.get("country")
+
+                location_name = ", ".join(filter(None, [city, state, country]))
+
+            except Exception as e:
+                print("Reverse geocoding error:", e)
+
+        Pet.objects.create(
+            user=request.user,
+            pet_type=pet_type,
+            breed=breed,
+            color=color,
+            latitude=latitude,
+            longitude=longitude,
+            location=location_name,
+            contact_info=contact_info,
+            description=description,
+            incident_datetime=incident_datetime,
+            image=image,
         )
 
         return redirect('my_requests')
 
     return render(request, 'add_request.html')
-
