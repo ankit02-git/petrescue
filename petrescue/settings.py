@@ -39,6 +39,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
+    
 ]
 
 ROOT_URLCONF = 'petrescue.urls'
@@ -129,9 +130,6 @@ ACCOUNT_LOGIN_ON_SIGNUP = False
 
 
 ACCOUNT_SIGNUP_REDIRECT_URL = "/accounts/login/"
-
-
-
 
 
 SOCIALACCOUNT_PROVIDERS = {

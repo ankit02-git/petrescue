@@ -51,36 +51,32 @@ body{
     animation:fadeIn 0.5s ease-in-out;
 }
 
-/* Smooth fade in */
 @keyframes fadeIn{
     from{opacity:0; transform:translateY(-10px);}
     to{opacity:1; transform:translateY(0);}
 }
-
 </style>
 </head>
 
 <body>
 
-
-
 <div class="login-card">
     <h3 class="text-center mb-4 fw-bold">Welcome Back</h3>
 
     {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-danger text-center custom-alert">
-            {{ message }}
-        </div>
-    {% endfor %}
-   {% endif %} 
+        {% for message in messages %}
+            <div class="alert alert-danger text-center custom-alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <form method="POST">
         {% csrf_token %}
 
         <div class="mb-3">
-            <input type="text" name="username" class="form-control"
-                   placeholder="Username" required>
+            <input type="email" name="email" class="form-control"
+                   placeholder="Email Address" required>
         </div>
 
         <div class="mb-3">
@@ -115,7 +111,7 @@ body{
             alert.style.opacity = "0";
             setTimeout(() => alert.remove(), 500);
         });
-    }, 5000); // 3 seconds
+    }, 5000);
 </script>
 
 </body>

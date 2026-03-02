@@ -26,7 +26,6 @@ def home(request):
 
 def register_view(request):
     if request.method == "POST":
-        username = request.POST.get('username')
         email = request.POST.get('email')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
@@ -35,16 +34,11 @@ def register_view(request):
             messages.error(request, "Passwords do not match")
             return redirect('register')
 
-        if User.objects.filter(username=username).exists():
-            messages.warning(request, "Username already exists. Please choose another.")
-            return redirect('register')
-
         if User.objects.filter(email=email).exists():
             messages.warning(request, "Email already registered. Please login.")
             return redirect('register')
 
-        User.objects.create_user(
-            username=username,
+        user = User.objects.create_user(
             email=email,
             password=password1
         )
@@ -54,22 +48,20 @@ def register_view(request):
 
     return render(request, 'register.html')
 
-
 def login_view(request):
     if request.method == "POST":
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user)
             return redirect('dashboard')
         else:
-            messages.error(request, "Invalid credentials")
+            messages.error(request, "Invalid email or password")
 
     return render(request, 'login.html')
-
 
 @login_required
 def dashboard(request):
@@ -117,3 +109,4 @@ def add_request(request):
         return redirect('my_requests')
 
     return render(request, 'add_request.html')
+

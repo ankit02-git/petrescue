@@ -56,29 +56,22 @@ body{
 
 <body>
 
-    
-
 <div class="register-card">
     <h3 class="text-center mb-4 fw-bold">Create Account</h3>
+
     {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-warning text-center">
-            {{ message }}
-        </div>
-    {% endfor %}
+        {% for message in messages %}
+            <div class="alert alert-warning text-center">
+                {{ message }}
+            </div>
+        {% endfor %}
     {% endif %}
-
-
 
     <form method="POST">
         {% csrf_token %}
         
         <div class="mb-3">
-            <input type="text" name="username" class="form-control" placeholder="Username" required>
-        </div>
-
-        <div class="mb-3">
-            <input type="email" name="email" class="form-control" placeholder="Email" required>
+            <input type="email" name="email" class="form-control" placeholder="Email Address" required>
         </div>
 
         <div class="mb-3">
@@ -103,7 +96,6 @@ body{
        class="btn btn-outline-danger w-100 google-btn">
         Continue with Google
     </a>
-    
 
     <p class="text-center mt-3">
         Already have an account?
