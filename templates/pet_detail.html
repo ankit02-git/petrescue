@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pet Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffffff, #ffd6e8);
+            min-height: 100vh;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.2);
+        }
+
+        .pet-image {
+            border-radius: 25px 0 0 25px;
+            object-fit: cover;
+            height: 100%;
+        }
+
+        .btn-custom {
+            border-radius: 30px;
+            font-weight: 500;
+            transition: 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
+        }
+
+        .heart {
+            cursor: pointer;
+            transition: 0.3s;
+            color: #ccc;
+        }
+
+        .heart.active {
+            color: #ff4d6d;
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container py-5 fade-in">
+
+    <!-- 🌸 Beautiful Heading -->
+    <div class="text-center mb-5">
+        <h1 style="
+            font-weight:700;
+            background: linear-gradient(45deg,#7b2192,#ff80bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;">
+            🐾 Pet Rescue Alert
+        </h1>
+        <p style="color:#520b81;">Help reunite pets with their families ❤️</p>
+    </div>
+
+    <div class="card glass-card border-0">
+        <div class="row g-0">
+
+            <!-- 🐶 Image -->
+            <div class="col-md-6">
+                {% if pet.image %}
+                <img src="{{ pet.image.url }}" class="img-fluid pet-image w-100">
+                {% endif %}
+            </div>
+
+            <!-- 📋 Details -->
+            <div class="col-md-6 p-4">
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="fw-bold">
+                        {{ pet.pet_type|title }} - {{ pet.breed }}
+                    </h3>
+
+                    <!-- ❤️ Favorite -->
+                    <i class="bi bi-heart-fill fs-3 heart {% if is_favorite %}active{% endif %}" 
+                       onclick="toggleFavorite({{ pet.id }}, this)">
+                    </i>
+                </div>
+
+                {% if pet.status == "lost" %}
+                    <span class="badge bg-danger mb-3">Lost</span>
+                {% else %}
+                    <span class="badge bg-success mb-3">Found</span>
+                {% endif %}
+
+                <p><strong>📍 Location:</strong> {{ pet.location|default:"Not provided" }}</p>
+                <p><strong>🎨 Color:</strong> {{ pet.color }}</p>
+                <p><strong>📅 Date:</strong> {{ pet.incident_datetime }}</p>
+                <p><strong>📝 Description:</strong> {{ pet.description }}</p>
+
+                <!-- 💬 Chat Button -->
+                <a href="https://wa.me/91{{ pet.contact_info }}" 
+                   target="_blank"
+                   class="btn w-100 mb-2 btn-custom"
+                   style="background: linear-gradient(45deg,#902fb6,#9e6296); color:white;">
+                    <i class="bi bi-chat-dots-fill"></i> Chat with Owner
+                </a>
+
+                <!-- 📤 Share -->
+                <button onclick="sharePet()" 
+                        class="btn btn-warning w-100 mb-2 btn-custom">
+                    <i class="bi bi-share-fill"></i> Share
+                </button>
+
+                <!-- 🔔 Report -->
+                <button class="btn btn-info w-100 btn-custom"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#reportModal">
+                    <i class="bi bi-bell-fill"></i> Report Sighting
+                </button>
+
+                <a href="{% url 'my_requests' %}" 
+                   class="btn btn-dark w-100 mt-3 btn-custom">
+                    ← Back
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 📍 Google Maps -->
+    {% if pet.location %}
+    <div class="card mt-4 shadow">
+        <div class="card-body">
+            <h5>📍 Location Map</h5>
+            <iframe
+                width="100%"
+                height="300"
+                style="border:0"
+                loading="lazy"
+                allowfullscreen
+                src="https://www.google.com/maps?q={{ pet.location }}&output=embed">
+            </iframe>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+<!-- 🔔 Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Report Sighting</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Your Message</label>
+                <textarea name="message" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+                Submit Report
+            </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function toggleFavorite(petId, icon) {
+    fetch(`/favorite/${petId}/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "added") {
+            icon.classList.add("active");
+        } else {
+            icon.classList.remove("active");
+        }
+    });
+}
+
+function sharePet() {
+    if (navigator.share) {
+        navigator.share({
+            title: "Pet Rescue Alert",
+            text: "Help find this pet!",
+            url: window.location.href
+        });
+    } else {
+        alert("Sharing not supported on this browser.");
+    }
+}
+</script>
+
+</body>
+</html>

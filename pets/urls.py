@@ -13,7 +13,7 @@ urlpatterns = [
     path('all-pets/', views.all_pets, name='all_pets'),
     path('favorites/', views.favorites, name='favorites'),
     path('pet/<int:pk>/', views.pet_detail, name='pet_detail'),
-    path('favorite/add/<int:pk>/', views.add_to_favorites, name='add_to_favorites'),
+    path('favorite/toggle/<int:pk>/', views.toggle_favorite, name='toggle_favorite'),
     
 ]
 

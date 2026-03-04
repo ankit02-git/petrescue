@@ -165,10 +165,18 @@ body{
                                 👁 View
                             </a>
 
-                            <a href="{% url 'add_to_favorites' pet.id %}" 
-                               class="btn btn-sm btn-save">
-                                ❤️ Save
-                            </a>
+                            <button 
+                                class="btn btn-sm btn-save toggle-fav-btn"
+                                data-id="{{ pet.id }}"
+                            >
+                                {% if pet.id in favorites %}
+                                    💔 Unsave
+                                {% else %}
+                                    ❤️ Save
+                                {% endif %}
+                            </button>
+
+                            
                         </div>
 
                     </div>
@@ -183,6 +191,29 @@ body{
 
     </div>
 </div>
+
+<script>
+document.querySelectorAll('.toggle-fav-btn').forEach(button => {
+    button.addEventListener('click', function() {
+
+        const petId = this.dataset.id;
+        const btn = this;
+
+        fetch(`/favorite/toggle/${petId}/`)
+            .then(response => response.json())
+            .then(data => {
+
+                if (data.status === "added") {
+                    btn.innerHTML = "💔 Unsave";
+                } else {
+                    btn.innerHTML = "❤️ Save";
+                }
+
+            });
+
+    });
+});
+</script>
 
 </body>
 </html>
