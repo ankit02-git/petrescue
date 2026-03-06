@@ -55,4 +55,14 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.pet}"
+from django.db import models
+from django.conf import settings
 
+class SightingReport(models.Model):
+    pet = models.ForeignKey('Pet', on_delete=models.CASCADE)
+    reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Report for {self.pet}"
