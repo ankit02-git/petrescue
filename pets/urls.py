@@ -19,6 +19,7 @@ urlpatterns = [
    
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('favorite/<int:pet_id>/', views.toggle_favorite, name='toggle_favorite'),
+    path("report-sighting/<int:pet_id>/", views.report_sighting, name="report_sighting"),
     
     
 ]

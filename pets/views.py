@@ -8,6 +8,9 @@ from .models import Pet, Favorite
 from django.shortcuts import get_object_or_404
 import requests
 from django.http import JsonResponse
+from django.shortcuts import redirect
+
+from .models import Pet, SightingReport
 
 
 
@@ -293,3 +296,20 @@ def toggle_favorite(request, pet_id):
 
     Favorite.objects.create(user=request.user, pet=pet)
     return JsonResponse({"status": "added"})
+
+
+
+@login_required
+def report_sighting(request, pet_id):
+
+    if request.method == "POST":
+        pet = Pet.objects.get(id=pet_id)
+        message = request.POST.get("message")
+
+        SightingReport.objects.create(
+            pet=pet,
+            reporter=request.user,
+            message=message
+        )
+
+    return redirect("pet_detail", pk=pet_id)

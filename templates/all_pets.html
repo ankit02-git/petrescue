@@ -155,10 +155,20 @@ value="{{location}}">
 
 <h6 class="fw-bold">{{pet.pet_type}} - {{pet.breed}}</h6>
 
+
+
 {% if pet.status == "lost" %}
-<span class="badge bg-danger mb-2">Lost</span>
-{% else %}
-<span class="badge bg-success mb-2">Found</span>
+<span class="badge bg-danger">Lost</span>
+
+{% elif pet.status == "found" %}
+<span class="badge bg-success">Found</span>
+
+{% elif pet.status == "rescued" %}
+<span class="badge bg-primary">Rescued</span>
+
+{% elif pet.status == "adopted" %}
+<span class="badge bg-warning text-dark">Adopted</span>
+
 {% endif %}
 
 <hr>

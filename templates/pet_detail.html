@@ -168,15 +168,19 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form method="post">
+       
+        <form method="POST" action="{% url 'report_sighting' pet.id %}">
             {% csrf_token %}
+
             <div class="mb-3">
                 <label>Your Message</label>
                 <textarea name="message" class="form-control" rows="3" required></textarea>
             </div>
+
             <button type="submit" class="btn btn-primary w-100">
                 Submit Report
             </button>
+
         </form>
       </div>
     </div>
