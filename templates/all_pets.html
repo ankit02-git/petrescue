@@ -11,6 +11,48 @@
 body{
 background:#f4f6f9;
 }
+/* NAVBAR */
+.top-nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 40px;
+    background:linear-gradient(90deg,#1f2933,#111827);
+    color:white;
+    box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+
+.top-nav h5{
+    margin:0;
+    font-weight:600;
+    letter-spacing:0.5px;
+}
+
+.nav-icons{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.nav-btn{
+    color:white;
+    text-decoration:none;
+    padding:6px 14px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.2);
+    font-size:14px;
+    transition:0.3s;
+}
+
+.nav-btn:hover{
+    background:#ff4c4c;
+    border-color:#ff4c4c;
+    color:white;
+}
+
+.nav-icons form{
+    margin:0;
+}
 
 .pet-card{
 border-radius:12px;
@@ -38,6 +80,36 @@ font-size:11px;
 </head>
 
 <body>
+   <div class="top-nav">
+
+    <h5>🐾 Pet Rescue</h5>
+
+    <div class="nav-icons">
+
+        <a href="{% url 'dashboard' %}" class="nav-btn">🏠 Dashboard</a>
+
+        <a href="{% url 'all_pets' %}" class="nav-btn">🐶 View Pets</a>
+
+        <a href="{% url 'favorites' %}" class="nav-btn">
+            ❤️ Favorites
+        </a>
+
+        <a href="{% url 'my_requests' %}" class="nav-btn">
+            📋 Requests
+        </a>
+
+        <a href="#" class="nav-btn">
+            🔔 Notifications
+        </a>
+
+        <form method="POST" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm">Logout</button>
+        </form>
+
+    </div>
+
+</div>
 
 <div class="container py-5">
 
@@ -106,23 +178,21 @@ value="{{location}}">
 class="btn btn-outline-dark btn-sm">
 👁 View
 </a>
-
-<button onclick="toggleFavorite({{pet.id}},this)"
+<button onclick="toggleFavorite({{ pet.pk }}, this)"
 class="btn btn-sm
-{% if pet.id in favorite_ids %}
+{% if pet.pk in favorite_ids %}
 btn-danger
 {% else %}
 btn-outline-danger
 {% endif %}">
 
-{% if pet.id in favorite_ids %}
+{% if pet.pk in favorite_ids %}
 ❤️ Unsave
 {% else %}
 🤍 Save
 {% endif %}
 
 </button>
-
 </div>
 
 </div>
@@ -139,23 +209,50 @@ btn-outline-danger
 
 <script>
 
-function toggleFavorite(petId,button){
+function getCookie(name){
+let cookieValue=null;
 
-fetch(`/favorite/${petId}/`)
-.then(response=>response.json())
-.then(data=>{
+if(document.cookie && document.cookie!==""){
+const cookies=document.cookie.split(';');
 
-if(data.status=="added"){
+for(let i=0;i<cookies.length;i++){
+const cookie=cookies[i].trim();
+
+if(cookie.substring(0,name.length+1)===(name+'=')){
+cookieValue=decodeURIComponent(cookie.substring(name.length+1));
+break;
+}
+}
+}
+
+return cookieValue;
+}
+
+function toggleFavorite(petId, button){
+
+fetch(`/favorite/${petId}/`, {
+method:"POST",
+headers:{
+"X-CSRFToken":getCookie("csrftoken"),
+"Content-Type":"application/json"
+}
+})
+.then(response => response.json())
+.then(data => {
+
+if(data.status == "added"){
 
 button.classList.remove("btn-outline-danger")
 button.classList.add("btn-danger")
-button.innerHTML="❤️ Unsave"
+button.innerHTML = "❤️ Unsave"
 
-}else{
+}
+
+else{
 
 button.classList.remove("btn-danger")
 button.classList.add("btn-outline-danger")
-button.innerHTML="🤍 Save"
+button.innerHTML = "🤍 Save"
 
 }
 
@@ -164,6 +261,5 @@ button.innerHTML="🤍 Save"
 }
 
 </script>
-
 </body>
 </html>

@@ -82,8 +82,16 @@ def my_requests(request):
 
 @login_required
 def all_pets(request):
+
     pets = Pet.objects.all()
-    return render(request, 'all_pets.html', {'pets': pets})
+
+    favorite_ids = Favorite.objects.filter(user=request.user)\
+                     .values_list('pet_id', flat=True)
+
+    return render(request,'all_requests.html',{
+        'pets':pets,
+        'favorite_ids':favorite_ids
+    })
 
 
 @login_required
@@ -268,18 +276,20 @@ def all_pets(request):
     })
 
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Pet, Favorite
+
 @login_required
 def toggle_favorite(request, pet_id):
+
     pet = Pet.objects.get(id=pet_id)
 
-    favorite, created = Favorite.objects.get_or_create(
-        user=request.user,
-        pet=pet
-    )
+    favorite = Favorite.objects.filter(user=request.user, pet=pet).first()
 
-    if not created:
+    if favorite:
         favorite.delete()
-        return JsonResponse({'status': 'removed'})
+        return JsonResponse({"status": "removed"})
 
-    return JsonResponse({'status': 'added'})
-
+    Favorite.objects.create(user=request.user, pet=pet)
+    return JsonResponse({"status": "added"})

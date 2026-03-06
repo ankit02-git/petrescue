@@ -16,8 +16,9 @@ urlpatterns = [
     path('all-pets/', views.all_pets, name='all_pets'),
     path('favorites/', views.favorites, name='favorites'),
     path('pet/<int:pk>/', views.pet_detail, name='pet_detail'),
-    path('favorite/toggle/<int:pk>/', views.toggle_favorite, name='toggle_favorite'),
+   
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('favorite/<int:pet_id>/', views.toggle_favorite, name='toggle_favorite'),
     
     
 ]

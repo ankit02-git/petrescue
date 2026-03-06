@@ -165,17 +165,21 @@ body{
                                 👁 View
                             </a>
 
-                            <button 
-                                class="btn btn-sm btn-save toggle-fav-btn"
-                                data-id="{{ pet.id }}"
-                            >
-                                {% if pet.id in favorites %}
-                                    💔 Unsave
-                                {% else %}
-                                    ❤️ Save
-                                {% endif %}
-                            </button>
+                            <button onclick="toggleFavorite({{ pet.id }}, this)"
+class="btn btn-sm
+{% if pet.id in favorite_ids %}
+btn-danger
+{% else %}
+btn-outline-danger
+{% endif %}">
 
+{% if pet.id in favorite_ids %}
+❤️ Unsave
+{% else %}
+🤍 Save
+{% endif %}
+
+</button>
                             
                         </div>
 
@@ -192,27 +196,37 @@ body{
     </div>
 </div>
 
+
 <script>
-document.querySelectorAll('.toggle-fav-btn').forEach(button => {
-    button.addEventListener('click', function() {
 
-        const petId = this.dataset.id;
-        const btn = this;
+function toggleFavorite(petId, button){
 
-        fetch(`/favorite/toggle/${petId}/`)
-            .then(response => response.json())
-            .then(data => {
+fetch(`/favorite/${petId}/`, {
+    method: "GET"
+})
+.then(response => response.json())
+.then(data => {
 
-                if (data.status === "added") {
-                    btn.innerHTML = "💔 Unsave";
-                } else {
-                    btn.innerHTML = "❤️ Save";
-                }
+if(data.status === "added"){
 
-            });
+button.classList.remove("btn-outline-danger")
+button.classList.add("btn-danger")
+button.innerHTML = "❤️ Unsave"
 
-    });
-});
+}
+
+if(data.status === "removed"){
+
+button.classList.remove("btn-danger")
+button.classList.add("btn-outline-danger")
+button.innerHTML = "🤍 Save"
+
+}
+
+})
+
+}
+
 </script>
 
 </body>

@@ -13,6 +13,48 @@
             background: linear-gradient(135deg, #ffffff, #ffe6f0, #ffd1e6);
             overflow-x: hidden;
         }
+        /* NAVBAR */
+.top-nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 40px;
+    background:linear-gradient(90deg,#1f2933,#111827);
+    color:white;
+    box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+
+.top-nav h5{
+    margin:0;
+    font-weight:600;
+    letter-spacing:0.5px;
+}
+
+.nav-icons{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.nav-btn{
+    color:white;
+    text-decoration:none;
+    padding:6px 14px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.2);
+    font-size:14px;
+    transition:0.3s;
+}
+
+.nav-btn:hover{
+    background:#ff4c4c;
+    border-color:#ff4c4c;
+    color:white;
+}
+
+.nav-icons form{
+    margin:0;
+}
 
         /* ✨ Fade-in */
         .fade-in {
@@ -88,6 +130,36 @@
 </head>
 
 <body>
+    <div class="top-nav">
+
+    <h5>🐾 Pet Rescue</h5>
+
+    <div class="nav-icons">
+
+        <a href="{% url 'dashboard' %}" class="nav-btn">🏠 Dashboard</a>
+
+        <a href="{% url 'all_pets' %}" class="nav-btn">🐶 View Pets</a>
+
+        <a href="{% url 'favorites' %}" class="nav-btn">
+            ❤️ Favorites
+        </a>
+
+        <a href="{% url 'my_requests' %}" class="nav-btn">
+            📋 Requests
+        </a>
+
+        <a href="#" class="nav-btn">
+            🔔 Notifications
+        </a>
+
+        <form method="POST" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm">Logout</button>
+        </form>
+
+    </div>
+
+</div>
   
 
 <!-- ❤️ Floating Hearts -->
@@ -166,12 +238,10 @@
                             View
                         </a>
 
-                        <!-- ❌ Remove with AJAX -->
-                        <button onclick="removeFavorite({{ fav.pet.id }}, this)"
-                                class="btn btn-outline-danger btn-pill">
+                       <button onclick="removeFavorite({{ fav.pet.id }}, this)"
+                            class="btn btn-danger btn-pill">
                             Remove
                         </button>
-
                     </div>
                 </div>
             </div>
@@ -187,35 +257,46 @@
 </div>
 
 <script>
-/* 🔍 Search + Filter */
-document.getElementById("searchInput").addEventListener("input", filterPets);
-document.getElementById("statusFilter").addEventListener("change", filterPets);
 
-function filterPets() {
-    let search = document.getElementById("searchInput").value.toLowerCase();
-    let status = document.getElementById("statusFilter").value;
+function getCookie(name){
+let cookieValue=null;
 
-    document.querySelectorAll(".favorite-item").forEach(item => {
-        let name = item.dataset.name;
-        let petStatus = item.dataset.status;
+if(document.cookie && document.cookie!==""){
+const cookies=document.cookie.split(';');
 
-        let matchSearch = name.includes(search);
-        let matchStatus = (status === "all" || petStatus === status);
+for(let i=0;i<cookies.length;i++){
+const cookie=cookies[i].trim();
 
-        item.style.display = (matchSearch && matchStatus) ? "block" : "none";
-    });
+if(cookie.substring(0,name.length+1)===(name+'=')){
+cookieValue=decodeURIComponent(cookie.substring(name.length+1));
+break;
+}
+}
 }
 
-/* ❌ Remove without leaving page */
-function removeFavorite(petId, button) {
-    fetch(`/favorite/${petId}/`)
-    .then(response => response.text())
-    .then(() => {
-        let card = button.closest(".favorite-item");
-        card.remove();
-    });
+return cookieValue;
 }
+
+function removeFavorite(petId, button){
+
+fetch(`/favorite/${petId}/`,{
+method:"POST",
+headers:{
+"X-CSRFToken":getCookie("csrftoken")
+}
+})
+.then(response=>response.json())
+.then(data=>{
+
+if(data.status=="removed"){
+let card = button.closest(".favorite-item");
+card.remove();
+}
+
+})
+
+}
+
 </script>
-
 </body>
 </html>
