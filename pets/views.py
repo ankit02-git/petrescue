@@ -9,6 +9,8 @@ from django.shortcuts import get_object_or_404
 import requests
 from django.http import JsonResponse
 
+
+
 User = get_user_model()
 
 
@@ -223,21 +225,6 @@ def add_request(request):
 
 
 @login_required
-def toggle_favorite(request, pk):
-    pet = get_object_or_404(Pet, id=pk)
-
-    favorite, created = Favorite.objects.get_or_create(
-        user=request.user,
-        pet=pet
-    )
-
-    if not created:
-        favorite.delete()
-        return JsonResponse({"status": "removed"})
-    
-    return JsonResponse({"status": "added"})
-
-@login_required
 def my_requests(request):
     pets = Pet.objects.filter(user=request.user)
     favorites = Favorite.objects.filter(user=request.user)\
@@ -247,3 +234,52 @@ def my_requests(request):
         'pets': pets,
         'favorites': list(favorites)   # VERY IMPORTANT
     })
+
+from .models import Pet, Favorite
+from django.db.models import Q
+
+def all_pets(request):
+    search = request.GET.get('search', '')
+    location = request.GET.get('location', '')
+
+    pets = Pet.objects.all()
+
+    if search:
+        pets = pets.filter(
+            Q(pet_type__icontains=search) |
+            Q(breed__icontains=search)
+        )
+
+    if location:
+        pets = pets.filter(location__icontains=location)
+
+    favorite_ids = []
+
+    if request.user.is_authenticated:
+        favorite_ids = Favorite.objects.filter(
+            user=request.user
+        ).values_list('pet_id', flat=True)
+
+    return render(request, 'all_pets.html', {
+        'pets': pets,
+        'favorite_ids': favorite_ids,
+        'search': search,
+        'location': location
+    })
+
+
+@login_required
+def toggle_favorite(request, pet_id):
+    pet = Pet.objects.get(id=pet_id)
+
+    favorite, created = Favorite.objects.get_or_create(
+        user=request.user,
+        pet=pet
+    )
+
+    if not created:
+        favorite.delete()
+        return JsonResponse({'status': 'removed'})
+
+    return JsonResponse({'status': 'added'})
+
